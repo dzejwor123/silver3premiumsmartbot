@@ -1,0 +1,26 @@
+# === KONFIGURACJA BEZPIECZEŃSTWA BOTA ===
+# ZMIEŃ TE WARTOŚCI NA SWOJE PRAWDZIWE TOKENY!
+
+# Token bota Telegram
+BOT_TOKEN=TWÓJ_TOKEN_BOTA_TUTAJ
+
+# Klucz API Google Gemini 2.5 Flash
+GEMINI_API_KEY=TWÓJ_KLUCZ_GEMINI_TUTAJ
+
+# Klucz API AccuWeather (opcjonalny)
+ACCUWEATHER_API_KEY=TWÓJ_KLUCZ_ACCUWEATHER_TUTAJ
+
+# Klucz API GIPHY
+GIPHY_API_KEY=TWÓJ_KLUCZ_GIPHY_TUTAJ
+
+# ID administratorów (oddzielone przecinkami)
+ADMIN_IDS=TWÓJE_ID_ADMINA
+
+# ID właściciela
+OWNER_ID=TWÓJE_ID_WŁAŚCICIELA
+
+# === INSTRUKCJE ===
+# 1. Skopiuj ten plik jako .env
+# 2. ZMIEŃ powyższe tokeny na swoje prawdziwe
+# 3. NIGDY nie commituj pliku .env do Git!
+# 4. Tylko env_template.txt może być w repozytorium 

@@ -1,0 +1,33 @@
+# Bot Kumpel - Wymagane pakiety dla VPS
+# Python 3.8+ required
+
+# Telegram Bot API
+python-telegram-bot[ext]>=20.0
+
+# Google Generative AI (Gemini)
+google-generativeai>=0.3.2
+
+# HTTP requests
+aiohttp>=3.8.0
+httpx>=0.25.0
+
+# RSS parsing
+feedparser>=6.0.0
+
+# Job scheduling  
+APScheduler>=3.10.0
+
+# Time zones
+pytz>=2023.3
+
+# Optional: Better performance
+ujson>=5.7.0
+
+# Optional: Fast XML parsing for RSS
+lxml>=4.9.0
+
+# System monitoring (helpful for VPS)
+psutil>=5.9.0
+
+# Environment variables (.env support)
+python-dotenv>=1.0.0
