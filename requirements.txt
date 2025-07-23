@@ -31,3 +31,6 @@ psutil>=5.9.0
 
 # Environment variables (.env support)
 python-dotenv>=1.0.0
+
+# Render API support (opcjonalny)
+aiohttp>=3.8.0

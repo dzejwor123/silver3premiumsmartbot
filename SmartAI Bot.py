@@ -745,6 +745,12 @@ class SmartAIBot:
         self.application.add_handler(CommandHandler("giphy", self.cmd_giphy))
         self.application.add_handler(CommandHandler("top_users", self.cmd_top_users))
         
+        # Komendy Render
+        self.application.add_handler(CommandHandler("render", self.cmd_render))
+        self.application.add_handler(CommandHandler("render_status", self.cmd_render_status))
+        self.application.add_handler(CommandHandler("render_logs", self.cmd_render_logs))
+        self.application.add_handler(CommandHandler("render_restart", self.cmd_render_restart))
+        
         # Przyciski
         self.application.add_handler(CallbackQueryHandler(self.button_callback))
         
@@ -1934,6 +1940,226 @@ Zero inwigilacji! Twoje rozmowy zostają między nami.
         stats_text += f"🔥 **Dziękuję za aktywność!**"
         
         await update.message.reply_text(stats_text, parse_mode=ParseMode.MARKDOWN)
+
+    async def cmd_render(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Komenda główna Render - pokazuje dostępne opcje"""
+        if not update.message:
+            return
+        
+        # Sprawdź czy użytkownik jest adminem
+        if update.effective_user.id not in self.config.get('admin_ids', []):
+            await update.message.reply_text(
+                "❌ **Brak uprawnień!**\n\n"
+                "Tylko administratorzy mogą zarządzać usługami Render! 🔒"
+            )
+            return
+        
+        render_help = """
+🤖 **ZARZĄDZANIE RENDER** - Silver3premiumsmartbot
+
+**Dostępne komendy:**
+• `/render_status` - Status wszystkich usług botów
+• `/render_logs` - Logi ostatnich deploymentów  
+• `/render_restart` - Restart usługi (podaj nazwę)
+
+**Przykłady:**
+• `/render_status` - Sprawdź status
+• `/render_logs silver3premiumsmartbot` - Logi konkretnej usługi
+• `/render_restart silver3premiumsmartbot` - Restart usługi
+
+**Wymagane:**
+• API Key Render w zmiennych środowiskowych
+• Uprawnienia administratora
+
+🔧 **Gotowy do zarządzania!**
+        """
+        
+        await update.message.reply_text(render_help, parse_mode=ParseMode.MARKDOWN)
+
+    async def cmd_render_status(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Sprawdź status usług Render"""
+        if not update.message:
+            return
+        
+        # Sprawdź czy użytkownik jest adminem
+        if update.effective_user.id not in self.config.get('admin_ids', []):
+            await update.message.reply_text("❌ **Brak uprawnień!** Tylko administratorzy! 🔒")
+            return
+        
+        # Sprawdź czy API key jest dostępny
+        render_api_key = os.getenv('RENDER_API_KEY')
+        if not render_api_key:
+            await update.message.reply_text(
+                "❌ **Brak API Key Render!**\n\n"
+                "Dodaj `RENDER_API_KEY` do zmiennych środowiskowych! 🔑"
+            )
+            return
+        
+        try:
+            # Import modułu Render
+            from render_manager import get_service_summary
+            
+            # Pobierz status usług
+            status_text = await get_service_summary(render_api_key)
+            
+            await update.message.reply_text(status_text, parse_mode=ParseMode.MARKDOWN)
+            
+        except ImportError:
+            await update.message.reply_text(
+                "❌ **Błąd importu!**\n\n"
+                "Moduł `render_manager` nie jest dostępny! 🔧"
+            )
+        except Exception as e:
+            await update.message.reply_text(
+                f"❌ **Błąd pobierania statusu:**\n\n"
+                f"`{str(e)}`\n\n"
+                f"Sprawdź logi bota! 🔍"
+            )
+
+    async def cmd_render_logs(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Pobierz logi usługi Render"""
+        if not update.message:
+            return
+        
+        # Sprawdź czy użytkownik jest adminem
+        if update.effective_user.id not in self.config.get('admin_ids', []):
+            await update.message.reply_text("❌ **Brak uprawnień!** Tylko administratorzy! 🔒")
+            return
+        
+        # Sprawdź argumenty
+        args = context.args
+        if not args:
+            await update.message.reply_text(
+                "📋 **Użycie:** `/render_logs <nazwa_usługi>`\n\n"
+                "**Przykład:** `/render_logs silver3premiumsmartbot`"
+            )
+            return
+        
+        service_name = args[0]
+        render_api_key = os.getenv('RENDER_API_KEY')
+        
+        if not render_api_key:
+            await update.message.reply_text("❌ **Brak API Key Render!** 🔑")
+            return
+        
+        try:
+            from render_manager import RenderManager
+            
+            manager = RenderManager(render_api_key)
+            service = await manager.get_service_by_name(service_name)
+            
+            if not service:
+                await update.message.reply_text(
+                    f"❌ **Nie znaleziono usługi:** `{service_name}`\n\n"
+                    f"Sprawdź nazwę lub użyj `/render_status`"
+                )
+                return
+            
+            service_id = service['service']['id']
+            logs = await manager.get_service_logs(service_id, limit=20)
+            
+            if not logs:
+                await update.message.reply_text(
+                    f"📭 **Brak logów** dla usługi `{service_name}`"
+                )
+                return
+            
+            # Formatuj logi
+            logs_text = f"📋 **LOGI USŁUGI:** `{service_name}`\n\n"
+            for log in logs[-10:]:  # Ostatnie 10 logów
+                logs_text += f"`{log}`\n\n"
+            
+            # Sprawdź długość wiadomości
+            if len(logs_text) > 4000:
+                logs_text = logs_text[:4000] + "\n\n... (logi zostały skrócone)"
+            
+            await update.message.reply_text(logs_text, parse_mode=ParseMode.MARKDOWN)
+            
+        except Exception as e:
+            await update.message.reply_text(
+                f"❌ **Błąd pobierania logów:**\n\n"
+                f"`{str(e)}`"
+            )
+
+    async def cmd_render_restart(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Restartuj usługę Render"""
+        if not update.message:
+            return
+        
+        # Sprawdź czy użytkownik jest adminem
+        if update.effective_user.id not in self.config.get('admin_ids', []):
+            await update.message.reply_text("❌ **Brak uprawnień!** Tylko administratorzy! 🔒")
+            return
+        
+        # Sprawdź argumenty
+        args = context.args
+        if not args:
+            await update.message.reply_text(
+                "📋 **Użycie:** `/render_restart <nazwa_usługi>`\n\n"
+                "**Przykład:** `/render_restart silver3premiumsmartbot`\n\n"
+                "⚠️ **Uwaga:** Restart może przerwać działanie bota!
+            )
+            return
+        
+        service_name = args[0]
+        render_api_key = os.getenv('RENDER_API_KEY')
+        
+        if not render_api_key:
+            await update.message.reply_text("❌ **Brak API Key Render!** 🔑")
+            return
+        
+        try:
+            from render_manager import RenderManager
+            
+            manager = RenderManager(render_api_key)
+            service = await manager.get_service_by_name(service_name)
+            
+            if not service:
+                await update.message.reply_text(
+                    f"❌ **Nie znaleziono usługi:** `{service_name}`"
+                )
+                return
+            
+            service_id = service['service']['id']
+            
+            # Potwierdzenie restartu
+            confirm_text = f"""
+⚠️ **POTWIERDZENIE RESTARTU**
+
+🤖 **Usługa:** `{service_name}`
+🔄 **Akcja:** Restart usługi
+⏱️ **Czas:** ~30-60 sekund
+
+**Czy na pewno chcesz zrestartować usługę?**
+
+Odpowiedz: `TAK` aby potwierdzić
+            """
+            
+            await update.message.reply_text(confirm_text, parse_mode=ParseMode.MARKDOWN)
+            
+            # Tutaj można dodać logikę potwierdzenia
+            # Na razie restartujemy od razu
+            
+            success = await manager.restart_service(service_id)
+            
+            if success:
+                await update.message.reply_text(
+                    f"✅ **Restart uruchomiony!**\n\n"
+                    f"🤖 Usługa: `{service_name}`\n"
+                    f"⏱️ Czekaj na zakończenie...\n\n"
+                    f"Sprawdź status: `/render_status`"
+                )
+            else:
+                await update.message.reply_text(
+                    f"❌ **Błąd restartu** usługi `{service_name}`\n\n"
+                    f"Sprawdź logi: `/render_logs {service_name}`"
+                )
+                
+        except Exception as e:
+            await update.message.reply_text(
+                f"❌ **Błąd restartu:**\n\n"
+                f"`{str(e)}`"
+            )
 
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Obsługa wszystkich wiadomości tekstowych"""

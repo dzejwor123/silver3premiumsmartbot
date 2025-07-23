@@ -19,6 +19,9 @@ ADMIN_IDS=TWÓJE_ID_ADMINA
 # ID właściciela
 OWNER_ID=TWÓJE_ID_WŁAŚCICIELA
 
+# Klucz API Render (opcjonalny - do zarządzania usługami)
+RENDER_API_KEY=TWÓJ_KLUCZ_RENDER_TUTAJ
+
 # === INSTRUKCJE ===
 # 1. Skopiuj ten plik jako .env
 # 2. ZMIEŃ powyższe tokeny na swoje prawdziwe
