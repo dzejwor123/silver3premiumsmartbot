@@ -1,4 +1,4 @@
-# 📝 Changelog - SmartAI Bot
+# 📝 Changelog - Silver3premiumsmartbot
 
 ## 🚀 Wersja 4.1.0 - "Emoji & GIF Revolution" (2025-01-14)
 

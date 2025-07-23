@@ -84,7 +84,7 @@ async def create_http_client():
         timeout=HTTP_TIMEOUT,
         limits=HTTP_LIMITS,
         headers={
-            'User-Agent': 'BotKumpel/4.0.0 (Windows)',
+            'User-Agent': 'Silver3premiumsmartbot/4.0.0 (Windows)',
             'Accept': 'application/json',
             'Accept-Encoding': 'gzip, deflate'
         },
@@ -390,18 +390,19 @@ class SmartAIBot:
                 clean_text = re.sub(r'\[GIF_TAG:\s*[^\]]+\]', '', text).strip()
                 return clean_text, 'gif', 'smiech'
         
+        # Opcja naklejek wyłączona - powoduje błędy z Telegram API
         # Usuń tagi naklejek
-        sticker_match = re.search(r'\[STICKER_ID:\s*([^\]]+)\]', text)
-        if sticker_match:
-            sticker_id = sticker_match.group(1).strip().lower()
-            # Sprawdź czy tag jest obsługiwany
-            if sticker_id in gif_tags:
-                clean_text = re.sub(r'\[STICKER_ID:\s*[^\]]+\]', '', text).strip()
-                return clean_text, 'sticker', sticker_id
-            else:
-                # Jeśli tag nie jest obsługiwany, użyj domyślnego
-                clean_text = re.sub(r'\[STICKER_ID:\s*[^\]]+\]', '', text).strip()
-                return clean_text, 'sticker', 'smiech'
+        # sticker_match = re.search(r'\[STICKER_ID:\s*([^\]]+)\]', text)
+        # if sticker_match:
+        #     sticker_id = sticker_match.group(1).strip().lower()
+        #     # Sprawdź czy tag jest obsługiwany
+        #     if sticker_id in gif_tags:
+        #         clean_text = re.sub(r'\[STICKER_ID:\s*[^\]]+\]', '', text).strip()
+        #         return clean_text, 'sticker', sticker_id
+        #     else:
+        #         # Jeśli tag nie jest obsługiwany, użyj domyślnego
+        #         clean_text = re.sub(r'\[STICKER_ID:\s*[^\]]+\]', '', text).strip()
+        #         return clean_text, 'sticker', 'smiech'
         
         return text, '', ''
 
@@ -480,8 +481,9 @@ class SmartAIBot:
         return self.get_random_gif(query)
 
     def get_sticker_id(self, tag: str) -> str:
-        """Zwraca file_id naklejki dla danego tagu"""
-        return self.stickers_database.get(tag, '')
+        """Zwraca file_id naklejki dla danego tagu - WYŁĄCZONE"""
+        # Opcja naklejek wyłączona - powoduje błędy z Telegram API
+        return ""
 
     def get_response_pattern(self, pattern_type: str) -> str:
         """Pobiera losowy wzorzec odpowiedzi z konfiguracji"""
@@ -2105,8 +2107,20 @@ Zero inwigilacji! Twoje rozmowy zostają między nami.
         # Sanityzuj odpowiedź przed wysłaniem
         sanitized_response = self.sanitize_markdown(clean_text)
 
-        # Wyślij multimedia jeśli są dostępne
+        # Wyślij multimedia jeśli są dostępne (z ograniczeniem)
         if media_type == 'gif' and media_tag:
+            # Sprawdź czy użytkownik nie wysyła za dużo GIF-ów
+            if user_id in self.giphy_request_count and self.giphy_request_count[user_id] > 10:
+                # Jeśli za dużo GIF-ów, wyślij tylko tekst
+                logger.info(f"⚠️ Użytkownik {user_id} wysyła za dużo GIF-ów, wysyłam tylko tekst")
+                try:
+                    await update.message.reply_text(sanitized_response, parse_mode=ParseMode.MARKDOWN)
+                    await asyncio.sleep(0.1)
+                    return
+                except Exception as e:
+                    logger.error(f"Błąd wysyłania tekstu: {e}")
+                    return
+            
             # Pobierz GIF z GIPHY API
             gif_url = await self.get_giphy_gif(media_tag, user_id)
             if gif_url:
@@ -2116,28 +2130,34 @@ Zero inwigilacji! Twoje rozmowy zostają między nami.
                         caption=sanitized_response,
                         parse_mode=ParseMode.MARKDOWN
                     )
+                    # Dodaj opóźnienie po wysłaniu GIF aby uniknąć rate limiting
+                    await asyncio.sleep(0.3)  # Zwiększone opóźnienie dla GIF-ów
                     return
                 except Exception as e:
                     logger.error(f"Błąd wysyłania GIF: {e}")
         
-        elif media_type == 'sticker' and media_tag:
-            sticker_id = self.get_sticker_id(media_tag)
-            if sticker_id:
-                try:
-                    await update.message.reply_sticker(sticker=sticker_id)
-                    # Wyślij tekst osobno
-                    await update.message.reply_text(sanitized_response, parse_mode=ParseMode.MARKDOWN)
-                    return
-                except Exception as e:
-                    logger.error(f"Błąd wysyłania naklejki: {e}")
+        # Opcja naklejek wyłączona - powoduje błędy z Telegram API
+        # elif media_type == 'sticker' and media_tag:
+        #     sticker_id = self.get_sticker_id(media_tag)
+        #     if sticker_id:
+        #         try:
+        #             await update.message.reply_sticker(sticker=sticker_id)
+        #             # Wyślij tekst osobno
+        #             await update.message.reply_text(sanitized_response, parse_mode=ParseMode.MARKDOWN)
+        #             return
+        #         except Exception as e:
+        #             logger.error(f"Błąd wysyłania naklejki: {e}")
 
         # Wyślij zwykłą odpowiedź tekstową
         try:
             await update.message.reply_text(sanitized_response, parse_mode=ParseMode.MARKDOWN)
+            # Dodaj opóźnienie po wysłaniu wiadomości aby uniknąć rate limiting
+            await asyncio.sleep(0.1)
         except Exception as e:
             # Jeśli Markdown nie działa, wyślij jako plain text
             logger.warning(f"⚠️ Błąd Markdown, wysyłam jako plain text: {e}")
             await update.message.reply_text(sanitized_response)
+            await asyncio.sleep(0.1)
     
     def get_greeting(self, name: str) -> str:
         """Generuj powitanie zależne od pory dnia w stylu kumpla"""

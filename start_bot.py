@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Skrypt uruchomieniowy dla VPS
-Uruchamia Bota Kumpla z automatycznym restartem w przypadku błędów
+Uruchamia Silver3premiumsmartbot z automatycznym restartem w przypadku błędów
 """
 
 import sys
@@ -50,7 +50,7 @@ def run_bot():
     
     while restart_count < max_restarts:
         try:
-            logger.info(f"🚀 Uruchamiam Bota Kumpla (restart #{restart_count})")
+            logger.info(f"🚀 Uruchamiam Silver3premiumsmartbot (restart #{restart_count})")
             
             # Uruchom bot
             process = subprocess.Popen([
@@ -90,7 +90,7 @@ def run_bot():
 def main():
     """Główna funkcja"""
     logger.info("=" * 50)
-    logger.info("🤖 Bot Kumpel Starter")
+    logger.info("🤖 Silver3premiumsmartbot Starter")
     logger.info(f"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info("=" * 50)
     

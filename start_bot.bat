@@ -1,12 +1,12 @@
 @echo off
 chcp 65001 >nul
-title Bot Kumpel - MEGA BOT LAUNCHER
+title Silver3premiumsmartbot - MEGA BOT LAUNCHER
 color 0A
 
 echo.
 echo ╔══════════════════════════════════════════════════════════════════════════╗
 echo ║                                                                          ║
-echo ║    🔥🤖 BOT KUMPEL - NAJLEPSZY AI NA TELEGRAMIE! 🤖🔥                 ║
+echo ║    🔥🤖 SILVER3PREMIUMSMARTBOT - NAJLEPSZY AI NA TELEGRAMIE! 🤖🔥     ║
 echo ║                                                                          ║
 echo ║          ⚡ GOTOWY NA KAŻDE WYZWANIE ⚡                                 ║
 echo ║          💪 LUŹNY • INTELIGENTNY • SZYBKI 💪                    ║
@@ -23,7 +23,7 @@ if not exist "SmartAI Bot.py" (
     pause
     exit /b 1
 )
-echo       ✅ Bot Kumpel.py - ZNALEZIONY
+echo       ✅ SmartAI Bot.py - ZNALEZIONY
 echo.
 
 echo [2/5] 🐍 WERYFIKACJA PYTHONA...

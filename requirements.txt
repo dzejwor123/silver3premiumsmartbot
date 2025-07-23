@@ -1,4 +1,4 @@
-# Bot Kumpel - Wymagane pakiety dla VPS
+# Silver3premiumsmartbot - Wymagane pakiety dla VPS
 # Python 3.8+ required
 
 # Telegram Bot API

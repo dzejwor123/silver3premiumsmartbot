@@ -1,4 +1,4 @@
-# ⚡ SZYBKI START - Bot Kumpel na VPS
+# ⚡ SZYBKI START - Silver3premiumsmartbot na VPS
 
 ## 🚀 Najszybsza instalacja (Ubuntu/Debian)
 
@@ -19,7 +19,7 @@ sudo apt update && sudo apt install python3.12 python3.12-venv python3.12-pip gi
 ### **2. Pobierz bota:**
 ```bash
 # Utwórz katalog
-mkdir ~/bot-kumpel && cd ~/bot-kumpel
+mkdir ~/silver-bot && cd ~/silver-bot
 
 # Upload plików przez SCP/SFTP:
 # - SmartAI Bot.py
@@ -66,15 +66,15 @@ sudo nano /etc/systemd/system/bot-kumpel.service
 **Zawartość (ZMIEŃ `username`):**
 ```ini
 [Unit]
-Description=Bot Kumpel
+Description=Silver3premiumsmartbot
 After=network.target
 
 [Service]
 Type=simple
 User=username
-WorkingDirectory=/home/username/bot-kumpel
-Environment=PATH=/home/username/bot-kumpel/bot_env/bin
-ExecStart=/home/username/bot-kumpel/bot_env/bin/python start_bot.py
+WorkingDirectory=/home/username/silver-bot
+Environment=PATH=/home/username/silver-bot/bot_env/bin
+ExecStart=/home/username/silver-bot/bot_env/bin/python start_bot.py
 Restart=always
 RestartSec=10
 
@@ -85,9 +85,9 @@ WantedBy=multi-user.target
 ### **Aktywuj:**
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable bot-kumpel.service
-sudo systemctl start bot-kumpel.service
-sudo systemctl status bot-kumpel.service
+sudo systemctl enable silver-bot.service
+sudo systemctl start silver-bot.service
+sudo systemctl status silver-bot.service
 ```
 
 ---
@@ -96,7 +96,7 @@ sudo systemctl status bot-kumpel.service
 
 ```bash
 # Build
-docker build -t bot-kumpel .
+docker build -t silver-bot .
 
 # Run
 docker run -d --name bot-kumpel --restart unless-stopped bot-kumpel
