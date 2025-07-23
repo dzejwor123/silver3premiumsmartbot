@@ -2,12 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Kopiuj pliki konfiguracyjne
-COPY requirements.txt .
-COPY bot_config.json .
-COPY "SmartAI Bot.py" .
-COPY start_bot.py .
-COPY *.md .
+# Kopiuj wszystkie pliki
+COPY . .
 
 # Zainstaluj zależności
 RUN pip install --no-cache-dir -r requirements.txt
