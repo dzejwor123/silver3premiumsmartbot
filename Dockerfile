@@ -16,7 +16,11 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # Eksponuj port (dla Render)
-EXPOSE 8080
+EXPOSE 10000
+
+# Ustaw zmienne środowiskowe
+ENV PORT=10000
+ENV PYTHONUNBUFFERED=1
 
 # Uruchom serwer HTTP który uruchomi bota
 CMD ["python", "server.py"] 

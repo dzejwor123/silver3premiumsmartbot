@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: silver3premiumsmartbot
+    name: silver3premiumsmartbot-advanced
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
@@ -19,11 +19,19 @@ services:
       - key: OWNER_ID
         sync: false
       - key: PORT
-        value: "10000"
+        value: 8080
       - key: PYTHONUNBUFFERED
         value: "1"
     # Ustawienia dla web service
     healthCheckPath: /health
     autoDeploy: true
-    # Timeouty i ustawienia
-    healthCheckTimeout: 300 
+    # Zaawansowane ustawienia
+    port: 8080
+    # Timeouty i retry
+    healthCheckTimeout: 300
+    buildFilter:
+      paths:
+        - "*.py"
+        - "requirements.txt"
+        - "render.yaml"
+        - "bot_config.json" 
