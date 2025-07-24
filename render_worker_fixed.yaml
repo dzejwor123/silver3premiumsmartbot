@@ -1,10 +1,10 @@
 services:
-  - type: web
-    name: silver3premiumsmartbot
+  - type: worker
+    name: silver3premiumsmartbot-worker-fixed
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: python render_server.py
+    startCommand: python "SmartAI Bot.py"
     envVars:
       - key: BOT_TOKEN
         sync: false
@@ -18,18 +18,9 @@ services:
         sync: false
       - key: OWNER_ID
         sync: false
-      - key: PORT
-        value: "10000"
       - key: PYTHONUNBUFFERED
         value: "1"
       - key: RENDER
         value: "true"
-      - key: PYTHONDONTWRITEBYTECODE
-        value: "1"
-    # Ustawienia dla web service
-    healthCheckPath: /health
-    autoDeploy: true
-    # Timeouty i ustawienia dla Render
-    healthCheckTimeout: 300
-    # Dodatkowe ustawienia portów
-    port: 10000 
+    # Ustawienia dla worker service
+    autoDeploy: true 

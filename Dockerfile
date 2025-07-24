@@ -20,5 +20,5 @@ ENV RENDER=true
 # Eksponuj port (dla Render)
 EXPOSE 10000
 
-# Uruchom serwer HTTP który uruchomi bota
-CMD ["python", "server.py"] 
+# Uruchom nowy serwer HTTP który uruchomi bota
+CMD ["python", "render_server.py"] 

@@ -6,25 +6,23 @@ Błąd: `Fix Render host/port configuration: Use 0.0.0.0:10000 with proper timeo
 
 ## ✅ **Co zostało naprawione:**
 
-### 1. **Konfiguracja portów** 🔧
-- Ujednolicono port na `10000` we wszystkich plikach
-- Dodano prawidłowe ustawienia `EXPOSE 10000` w Dockerfile
-- Naprawiono konfigurację `render.yaml`
+### 1. **Nowy serwer HTTP** 🔧
+- Utworzono `render_server.py` - prostszy serwer HTTP
+- Utworzono `simple_server.py` - bardzo prosty serwer tylko dla health check
+- Naprawiono problem z daemon threads
 
-### 2. **Serwer HTTP** 🌐
-- Zwiększono timeout do 300 sekund (wymagane przez Render)
-- Dodano obsługę sygnałów dla graceful shutdown
-- Poprawiono health check endpoint `/health`
-- Dodano lepsze logowanie i obsługę błędów
+### 2. **Konfiguracja Render** 🌐
+- Zaktualizowano `render.yaml` - używa nowego serwera
+- Utworzono `render_worker_fixed.yaml` - alternatywa jako worker
+- Poprawiono ustawienia portów i timeoutów
 
-### 3. **Zmienne środowiskowe** ⚙️
-- Dodano `RENDER=true` dla wykrycia środowiska
-- Ustawiono `PYTHONUNBUFFERED=1` dla lepszych logów
-- Dodano `PYTHONDONTWRITEBYTECODE=1` dla optymalizacji
+### 3. **Dockerfile** ⚙️
+- Zaktualizowano aby używał nowego serwera
+- Dodano wszystkie wymagane zmienne środowiskowe
 
 ## 🚀 **Instrukcje deploymentu:**
 
-### **Opcja A: Web Service (zalecane)**
+### **Opcja A: Web Service z nowym serwerem (zalecane)**
 ```bash
 # Użyj głównej konfiguracji
 render.yaml
@@ -33,7 +31,13 @@ render.yaml
 ### **Opcja B: Worker Service (alternatywa)**
 ```bash
 # Jeśli web service nie działa, użyj worker
-render_worker.yaml
+render_worker_fixed.yaml
+```
+
+### **Opcja C: Prosty serwer (test)**
+```bash
+# Zmień startCommand w render.yaml na:
+startCommand: python simple_server.py
 ```
 
 ## 🔍 **Testowanie przed deploymentem:**
@@ -43,22 +47,26 @@ render_worker.yaml
 python test_render.py
 ```
 
-### 2. **Sprawdź zmienne środowiskowe:**
+### 2. **Testuj nowy serwer:**
+```bash
+# Test 1: render_server.py
+python render_server.py
+
+# Test 2: simple_server.py
+python simple_server.py
+```
+
+### 3. **Sprawdź zmienne środowiskowe:**
 - `BOT_TOKEN` - token bota Telegram
 - `GEMINI_API_KEY` - klucz API Gemini
 - `PORT` - port 10000 (automatycznie ustawiony)
-
-### 3. **Sprawdź pliki konfiguracyjne:**
-- `render.yaml` - główna konfiguracja
-- `server.py` - serwer HTTP
-- `Dockerfile` - konfiguracja kontenera
 
 ## 📋 **Kroki deploymentu:**
 
 ### 1. **Przygotuj repozytorium:**
 ```bash
 git add .
-git commit -m "Fix Render deployment configuration"
+git commit -m "Fix Render port binding - new HTTP servers and worker config"
 git push origin main
 ```
 
@@ -73,30 +81,30 @@ git push origin main
    - `ADMIN_IDS` (opcjonalne)
    - `OWNER_ID` (opcjonalne)
 
-### 3. **Deploy:**
-- Kliknij "Manual Deploy" -> "Deploy latest commit"
-- Poczekaj na zakończenie build process
-- Sprawdź logi deploymentu
+### 3. **Jeśli web service nie działa:**
+1. Zmień typ service na "Worker"
+2. Użyj `render_worker_fixed.yaml`
+3. Lub zmień startCommand na `python simple_server.py`
 
 ## 🔍 **Diagnostyka problemów:**
 
 ### **Problem: Port scan timeout**
 **Rozwiązanie:**
-- Sprawdź czy `server.py` uruchamia się poprawnie
+- Użyj `simple_server.py` - najprostszy serwer
 - Sprawdź czy port 10000 jest eksponowany
 - Sprawdź logi w Render Dashboard
 
 ### **Problem: Health check failed**
 **Rozwiązanie:**
 - Sprawdź endpoint `/health`
-- Sprawdź czy serwer HTTP odpowiada
+- Użyj `simple_server.py` dla testu
 - Sprawdź timeouty w konfiguracji
 
 ### **Problem: Bot not starting**
 **Rozwiązanie:**
+- Użyj `render_worker_fixed.yaml`
 - Sprawdź zmienne środowiskowe
 - Sprawdź logi bota
-- Użyj `render_worker.yaml` jako alternatywę
 
 ## 📊 **Monitoring:**
 
@@ -120,19 +128,20 @@ curl https://twoj-bot.onrender.com/health
 ### **Opcja 1: Worker Service**
 ```bash
 # Zmień typ service na worker w Render Dashboard
-# Lub użyj render_worker.yaml
+# Lub użyj render_worker_fixed.yaml
 ```
 
-### **Opcja 2: Sprawdź tokeny**
+### **Opcja 2: Prosty serwer**
+```bash
+# Zmień startCommand na:
+python simple_server.py
+```
+
+### **Opcja 3: Sprawdź tokeny**
 ```bash
 # Uruchom test lokalny
 python test_connection.py
 ```
-
-### **Opcja 3: Kontakt z supportem**
-- Zbierz logi z Render Dashboard
-- Przygotuj informacje o konfiguracji
-- Opisz dokładnie błąd
 
 ## ✅ **Po udanym deploymentzie:**
 
@@ -144,5 +153,11 @@ python test_connection.py
 ## 📝 **Uwagi:**
 - Render wymaga web service z health check
 - Worker service nie wymaga portów, ale ma ograniczenia
+- `simple_server.py` to najprostsze rozwiązanie
 - Zawsze sprawdzaj logi po deploymentzie
-- Używaj testów przed deploymentem 
+- Używaj testów przed deploymentem
+
+## 🚀 **Nowe pliki:**
+- `render_server.py` - nowy serwer HTTP z botem
+- `simple_server.py` - prosty serwer tylko dla health check
+- `render_worker_fixed.yaml` - konfiguracja worker 
