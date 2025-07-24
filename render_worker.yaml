@@ -17,4 +17,10 @@ services:
       - key: ADMIN_IDS
         sync: false
       - key: OWNER_ID
-        sync: false 
+        sync: false
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: RENDER
+        value: "true"
+    # Ustawienia dla worker service
+    autoDeploy: true 
