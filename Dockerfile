@@ -15,5 +15,8 @@ RUN mkdir -p logs
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Uruchom bota
-CMD ["python", "SmartAI Bot.py"] 
+# Eksponuj port (dla Render)
+EXPOSE 8080
+
+# Uruchom serwer HTTP który uruchomi bota
+CMD ["python", "server.py"] 

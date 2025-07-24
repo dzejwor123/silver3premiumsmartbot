@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: silver3premiumsmartbot
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ACCUWEATHER_API_KEY
+        sync: false
+      - key: GIPHY_API_KEY
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: OWNER_ID
+        sync: false
+    # Ustawienia dla web service
+    healthCheckPath: /health
+    autoDeploy: true 

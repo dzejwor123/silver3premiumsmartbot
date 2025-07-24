@@ -1,0 +1,20 @@
+services:
+  - type: worker
+    name: silver3premiumsmartbot-worker
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python "SmartAI Bot.py"
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ACCUWEATHER_API_KEY
+        sync: false
+      - key: GIPHY_API_KEY
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: OWNER_ID
+        sync: false 
